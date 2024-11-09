@@ -1,3 +1,4 @@
 Questions:
 - What factors contribute most significantly to the severity of crashes?
 - What factors contribute most significantly to the duration of traffic delays?
+- What factors contribute most significantly to the length of affected roads?
