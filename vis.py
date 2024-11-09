@@ -5,4 +5,4 @@ import numpy as np
 import random
 from sample_preview import data
 
-print('data',data)
+data
