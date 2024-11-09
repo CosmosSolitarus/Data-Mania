@@ -1,17 +1,23 @@
 import pandas as pd
 
 # Load the sampled CSV file
-data = pd.read_csv("us_accidents_sample.csv")
+data = pd.read_csv("us_accidents.csv")
 
 # Number of rows and columns
 num_rows, num_columns = data.shape
 print(f"Number of rows: {num_rows}")
 print(f"Number of columns: {num_columns}")
 
-# Percentage of missing values per column
-missing_values = data.isnull().mean() * 100
-print("\nPercentage of missing values per column:")
-print(missing_values[missing_values > 0].sort_values(ascending=False))
+# Count and percentage of missing values per column (in original order)
+missing_values_count = data.isnull().sum()
+missing_values_percent = data.isnull().mean() * 100
+missing_values_df = pd.DataFrame({
+    'Missing Count': missing_values_count,
+    'Missing Percentage (%)': missing_values_percent
+})
+
+print("\nCount and Percentage of missing values per column:")
+print(missing_values_df)
 
 # Number of unique values per column
 unique_counts = data.nunique()
