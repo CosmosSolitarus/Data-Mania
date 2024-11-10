@@ -209,12 +209,12 @@ def main():
     
     # Process the file in chunks
     first_chunk = True
-    for chunk in pd.read_csv("us_accidents_sample.csv", chunksize=chunk_size):
+    for chunk in pd.read_csv("max_affected_time_row.csv", chunksize=chunk_size):
         processed_chunk = process_chunk(chunk, holidays_dict, wind_direction_map, weather_condition_reverse_map)
         
         mode = 'w' if first_chunk else 'a'
         header = first_chunk
-        processed_chunk.to_csv("us_accidents_sample_cleaned.csv", mode=mode, index=False, header=header)
+        processed_chunk.to_csv("max_affected_time_row_cleaned.csv", mode=mode, index=False, header=header)
         first_chunk = False
         
         del processed_chunk

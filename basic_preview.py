@@ -1,6 +1,6 @@
 import csv
 
-with open("us_accidents_cleaned.csv", "r") as file:
+with open("us_accidents_sample_cleaned.csv", "r") as file:
     reader = csv.reader(file)
     
     # Get columns (first row in the file)
