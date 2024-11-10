@@ -1,7 +1,10 @@
 import pandas as pd
+import time
+
+start_time = time.time()
 
 # Load the CSV file
-df = pd.read_csv('us_accidents_sample.csv')
+df = pd.read_csv('us_accidents_cleaned.csv')
 
 # Count the number of missing values per row
 missing_data_per_row = df.isnull().sum(axis=1)
@@ -42,3 +45,6 @@ for missing, count in missing_counts.items():
         top_columns = sorted_missing_columns[:(missing + 2)]  # Get x+2 columns
         top_columns_str = ', '.join([f"'{col}' - {pct:.1f}%" for col, pct in top_columns])
         print(f"  Most common: {top_columns_str}")
+
+end_time = time.time()
+print(f"Total processing time: {end_time - start_time:.2f} seconds ({(end_time - start_time)/60:.2f} minutes)")

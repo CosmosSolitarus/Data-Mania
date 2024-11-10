@@ -4,6 +4,34 @@ from workalendar.usa import UnitedStates
 import time
 import gc
 
+# Full list of required columns
+required_columns = [
+    'Affected_Distance', 'Affected_Time', 'Source', 'Latitude', 'Longitude', 
+    'Temperature', 'Humidity', 'Pressure', 'Visibility', 'Wind_Speed', 'Precipitation', 
+    'Amenity', 'Bump', 'Crossing', 'Give_Way', 'Junction', 'No_Exit', 'Railway', 
+    'Roundabout', 'Station', 'Stop', 'Traffic_Calming', 'Traffic_Signal', 'Sunrise_Sunset', 
+    'Civil_Twilight', 'Nautical_Twilight', 'Astronomical_Twilight', 'Percentage_of_Year', 
+    'Percentage_of_Day', 'Holiday', 'After_Holiday',
+    
+    # State columns - includes DC; excludes HI/AK
+    *['State_' + state for state in ['AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 
+                                     'GA', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 
+                                     'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 
+                                     'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 
+                                     'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY']],
+    
+    # Wind direction columns
+    'WindDir_N', 'WindDir_E', 'WindDir_S', 'WindDir_W', 'WindDir_Calm', 'WindDir_Variable',
+
+    # Weather condition columns
+    'Weather_Clear', 'Weather_Cloudy', 'Weather_Fog', 'Weather_Heavy Rain', 'Weather_Light Rain', 
+    'Weather_Rain', 'Weather_Snow',
+
+    # Day columns
+    'Day_Monday', 'Day_Tuesday', 'Day_Wednesday', 'Day_Thursday', 'Day_Friday', 
+    'Day_Saturday', 'Day_Sunday'
+]
+
 def process_chunk(chunk, holidays_dict, wind_direction_map, weather_condition_reverse_map):
     # Step 1: Remove unnecessary columns
     columns_to_remove = ['ID', 'Severity', 'End_Lat', 'End_Lng', 'Description', 
@@ -26,8 +54,8 @@ def process_chunk(chunk, holidays_dict, wind_direction_map, weather_condition_re
     chunk.rename(columns=rename_columns, inplace=True)
 
     # Step 3: Map and combine 'Weather_Condition' and 'Wind_Direction'
-    chunk['Wind_Direction'] = chunk['Wind_Direction'].map(wind_direction_map).fillna('NA')
-    chunk['Weather_Condition'] = chunk['Weather_Condition'].map(weather_condition_reverse_map).fillna('Other')
+    chunk['Wind_Direction'] = chunk['Wind_Direction'].map(wind_direction_map).fillna('')
+    chunk['Weather_Condition'] = chunk['Weather_Condition'].map(weather_condition_reverse_map).fillna('')
 
     # Step 4: Set 'Wind_Speed' to 0 where 'Wind_Direction' is 'Calm' and 'Wind_Speed' is blank
     chunk.loc[(chunk['Wind_Direction'] == 'Calm') & (chunk['Wind_Speed'].isna()), 'Wind_Speed'] = 0
@@ -120,7 +148,14 @@ def process_chunk(chunk, holidays_dict, wind_direction_map, weather_condition_re
     chunk.dropna(inplace=True)
     chunk.drop(columns=['Street'], inplace=True)
 
-    return chunk
+    # Enforce required columns
+    for column in required_columns:
+        if column not in chunk.columns:
+            chunk[column] = 0  # Default to 0 or a suitable value for missing columns
+
+    chunk = chunk.reindex(columns=required_columns)
+
+    return chunk[required_columns]  # Ensure the chunk has the exact columns in the correct order
 
 def main():
     start_time = time.time()
@@ -175,7 +210,6 @@ def main():
     # Process the file in chunks
     first_chunk = True
     for chunk in pd.read_csv("us_accidents.csv", chunksize=chunk_size):
-        # Remove cal from the arguments since it's not used
         processed_chunk = process_chunk(chunk, holidays_dict, wind_direction_map, weather_condition_reverse_map)
         
         mode = 'w' if first_chunk else 'a'
