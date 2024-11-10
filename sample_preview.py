@@ -39,9 +39,9 @@ print("\nBasic statistics for numerical columns:")
 print(data.describe())
 
 # Basic statistics for categorical columns
-# categorical_columns = data.select_dtypes(include=['object']).columns
-# print("\nBasic statistics for categorical columns:")
-# print(data[categorical_columns].describe())
+categorical_columns = data.select_dtypes(include=['object']).columns
+print("\nBasic statistics for categorical columns:")
+print(data[categorical_columns].describe())
 
 # Preview first few rows
 print("\nPreview of the first few rows:")
